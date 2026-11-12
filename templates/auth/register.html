@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200/80 shadow-lg">
+        
+        <!-- Header -->
+        <div class="text-center">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-bordeaux-50 border border-bordeaux-200 text-bordeaux-800 flex items-center justify-center shadow-xs">
+                <i data-lucide="user-plus" class="w-7 h-7"></i>
+            </div>
+            <h1 class="mt-4 text-2xl font-extrabold text-slate-900 font-display">
+                Create Your Account
+            </h1>
+            <p class="mt-1.5 text-xs text-slate-500">
+                Join trusted Mukando savings and lending groups across Zimbabwe
+            </p>
+        </div>
+
+        <!-- Registration Form -->
+        <form class="mt-8 space-y-4" action="{{ url_for('auth.register') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div>
+                <label for="full_name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Full Legal Name
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <input id="full_name" name="full_name" type="text" required
+                           value="{{ full_name|default('', true) }}"
+                           placeholder="e.g. Nyasha Chigumba"
+                           class="block w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </div>
+                    <input id="email" name="email" type="email" autocomplete="email" required
+                           value="{{ email|default('', true) }}"
+                           placeholder="e.g. nyasha@example.co.zw"
+                           class="block w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Password
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                    </div>
+                    <input id="password" name="password" type="password" required minlength="8"
+                           placeholder="At least 8 characters"
+                           class="block w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Must contain letters and numbers, at least 8 characters.</p>
+            </div>
+
+            <div>
+                <label for="confirm_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Confirm Password
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                    </div>
+                    <input id="confirm_password" name="confirm_password" type="password" required minlength="8"
+                           placeholder="Repeat password"
+                           class="block w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 text-[11px] text-slate-500 space-y-1">
+                <div class="font-bold text-slate-700">Mukando Trust Agreement:</div>
+                <p>By registering, you acknowledge that MukoLend is a record-keeping and peer-agreement platform using simulated financial transactions for group transparency.</p>
+            </div>
+
+            <button type="submit"
+                    class="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-bordeaux-800 hover:bg-bordeaux-900 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-bordeaux-800 shadow-md transition-all">
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                Create MukoLend Account
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-slate-600">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}" class="font-bold text-bordeaux-800 hover:text-bordeaux-950 underline">
+                Sign in here
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

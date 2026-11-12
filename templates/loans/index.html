@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}My Loans | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                My Peer Loans
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Manage your borrowing obligations, peer investments, and dual-signed loan agreements
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('loan_request.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Request Loan
+            </a>
+        </div>
+    </div>
+
+    <!-- 5 Tab Navigation -->
+    <div class="border-b border-slate-200">
+        <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto pb-px" aria-label="Tabs">
+            <a href="{{ url_for('loan.index', tab='borrowed') }}"
+               class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-xs sm:text-sm rounded-t-lg transition-colors flex items-center gap-2
+               {% if active_tab == 'borrowed' %}border-bordeaux-800 text-bordeaux-800 bg-bordeaux-50/50{% else %}border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300{% endif %}">
+                <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                Borrowed Loans
+                <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {% if active_tab == 'borrowed' %}bg-bordeaux-100 text-bordeaux-900{% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ loan_cats.borrowed|length }}
+                </span>
+            </a>
+
+            <a href="{{ url_for('loan.index', tab='provided') }}"
+               class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-xs sm:text-sm rounded-t-lg transition-colors flex items-center gap-2
+               {% if active_tab == 'provided' %}border-bordeaux-800 text-bordeaux-800 bg-bordeaux-50/50{% else %}border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300{% endif %}">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                Lent / Provided
+                <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {% if active_tab == 'provided' %}bg-bordeaux-100 text-bordeaux-900{% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ loan_cats.provided|length }}
+                </span>
+            </a>
+
+            <a href="{{ url_for('loan.index', tab='awaiting') }}"
+               class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-xs sm:text-sm rounded-t-lg transition-colors flex items-center gap-2
+               {% if active_tab == 'awaiting' %}border-amber-600 text-amber-700 bg-amber-50/50{% else %}border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300{% endif %}">
+                <i data-lucide="file-signature" class="w-4 h-4"></i>
+                Awaiting Agreement
+                <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {% if loan_cats.awaiting_agreement|length > 0 %}bg-amber-100 text-amber-900 font-bold{% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ loan_cats.awaiting_agreement|length }}
+                </span>
+            </a>
+
+            <a href="{{ url_for('loan.index', tab='overdue') }}"
+               class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-xs sm:text-sm rounded-t-lg transition-colors flex items-center gap-2
+               {% if active_tab == 'overdue' %}border-rose-600 text-rose-700 bg-rose-50/50{% else %}border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300{% endif %}">
+                <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+                Overdue
+                <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {% if loan_cats.overdue|length > 0 %}bg-rose-100 text-rose-900 font-bold{% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ loan_cats.overdue|length }}
+                </span>
+            </a>
+
+            <a href="{{ url_for('loan.index', tab='repaid') }}"
+               class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-xs sm:text-sm rounded-t-lg transition-colors flex items-center gap-2
+               {% if active_tab == 'repaid' %}border-slate-700 text-slate-900 bg-slate-100/50{% else %}border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300{% endif %}">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                Fully Repaid
+                <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {% if active_tab == 'repaid' %}bg-slate-200 text-slate-900{% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ loan_cats.repaid|length }}
+                </span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Active List Data -->
+    {% set current_list = loan_cats[active_tab] if active_tab in loan_cats else (loan_cats.awaiting_agreement if active_tab == 'awaiting' else loan_cats.borrowed) %}
+
+    {% if current_list %}
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200/80 bg-slate-50/75 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-3.5 px-6">Loan ID & Group</th>
+                        <th class="py-3.5 px-4">Counterparty</th>
+                        <th class="py-3.5 px-4">Principal + Fee</th>
+                        <th class="py-3.5 px-4">Outstanding</th>
+                        <th class="py-3.5 px-4">Due Date</th>
+                        <th class="py-3.5 px-4">Status</th>
+                        <th class="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for l in current_list %}
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-slate-900">#ML-{{ "%04d"|format(l.id) }}</div>
+                            <div class="text-xs text-slate-500 truncate max-w-[150px]">{{ l.community_name }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            {% if l.borrower_id == current_user.id %}
+                                <div class="font-medium text-slate-900">{{ l.lender_name }}</div>
+                                <div class="text-[11px] text-slate-400">Lender</div>
+                            {% else %}
+                                <div class="font-medium text-slate-900">{{ l.borrower_name }}</div>
+                                <div class="text-[11px] text-slate-400">Borrower</div>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="font-bold text-slate-900">{{ l.total_due_minor|currency }}</div>
+                            <div class="text-[11px] text-slate-400">Principal: {{ l.principal_minor|currency }} | Fee: {{ l.fee_minor|currency }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="font-extrabold text-slate-900">{{ l.outstanding_minor|currency }}</div>
+                            <div class="text-[11px] text-emerald-600">Repaid: {{ l.total_repaid_minor|currency }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="text-slate-800 font-medium">{{ l.due_date|format_date }}</div>
+                            <span class="text-[10px] font-semibold {{ l.indicator.css_class }}">
+                                {{ l.indicator.label }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                                {% if l.status == 'active' %}bg-emerald-100 text-emerald-800
+                                {% elif l.status == 'awaiting_agreement' %}bg-amber-100 text-amber-800
+                                {% elif l.status == 'overdue' %}bg-rose-100 text-rose-800
+                                {% elif l.status == 'repaid' %}bg-slate-100 text-slate-700
+                                {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ l.status|replace('_', ' ')|capitalize }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-2">
+                                {% if l.status == 'awaiting_agreement' %}
+                                    <a href="{{ url_for('loan.agreement', loan_id=l.id) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-xs">
+                                        Review Agreement
+                                    </a>
+                                {% elif l.borrower_id == current_user.id and l.status in ['active', 'overdue'] %}
+                                    <a href="{{ url_for('repayment.create', loan_id=l.id) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-bordeaux-800 hover:bg-bordeaux-900 shadow-xs">
+                                        Repay
+                                    </a>
+                                {% endif %}
+                                <a href="{{ url_for('loan.detail', loan_id=l.id) }}" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">
+                                    Details
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 max-w-xl mx-auto space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+            <i data-lucide="file-text" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-xl font-bold font-display text-slate-900">No Loans in This Category</h2>
+        <p class="text-sm text-slate-500">
+            There are no records matching the selected tab. Check back later or initiate a new loan request.
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

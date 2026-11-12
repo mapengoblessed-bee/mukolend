@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Agreement #ML-{{ "%04d"|format(loan.id) }} | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
+    <!-- Top Navigation / Breadcrumb -->
+    <div class="flex items-center justify-between">
+        <a href="{{ url_for('loan.index', tab='awaiting') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800">
+            &larr; Back to My Loans
+        </a>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                {% if loan.status == 'active' %}bg-emerald-100 text-emerald-800
+                {% elif loan.status == 'awaiting_agreement' %}bg-amber-100 text-amber-800
+                {% elif loan.status == 'repaid' %}bg-slate-100 text-slate-800
+                {% else %}bg-rose-100 text-rose-800{% endif %}">
+                Status: {{ loan.status|replace('_', ' ')|capitalize }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Formal Legal / Promissory Agreement Paper -->
+    <div class="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-8 sm:p-12 space-y-8 relative overflow-hidden">
+        
+        <!-- Decorative Watermark / Stamp -->
+        <div class="absolute right-8 top-8 opacity-5 pointer-events-none select-none">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="" class="w-64 h-64">
+        </div>
+
+        <!-- Agreement Header -->
+        <div class="text-center pb-8 border-b-2 border-slate-200 space-y-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-bordeaux-50 text-bordeaux-900 border border-bordeaux-200 uppercase tracking-widest">
+                <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                Mukando Peer Lending Promissory Note
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display tracking-tight">
+                Peer-to-Peer Community Loan Agreement
+            </h1>
+            <p class="text-xs text-slate-500">
+                Loan Contract Reference: <span class="font-mono font-bold text-slate-800">#ML-{{ "%04d"|format(loan.id) }}</span> • Facilitated through <strong class="text-bordeaux-800">{{ loan.community_name }}</strong>
+            </p>
+        </div>
+
+        <!-- Contracting Parties Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <!-- Borrower Column -->
+            <div class="space-y-2">
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Borrower (Debtor)</span>
+                <div class="font-bold text-base text-slate-900">{{ loan.borrower_name }}</div>
+                <div class="text-xs text-slate-500">{{ loan.borrower_email }}</div>
+                <div class="pt-2 flex items-center gap-2">
+                    {% if loan.borrower_accepted %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Acknowledged
+                        </span>
+                        <span class="text-[10px] text-slate-400">Signed {{ loan.borrower_accepted_at|format_date }}</span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            <i data-lucide="clock" class="w-3.5 h-3.5"></i> Awaiting Signature
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lender Column -->
+            <div class="space-y-2 md:border-l md:border-slate-200 md:pl-6">
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Lender (Creditor)</span>
+                <div class="font-bold text-base text-slate-900">{{ loan.lender_name }}</div>
+                <div class="text-xs text-slate-500">{{ loan.lender_email }}</div>
+                <div class="pt-2 flex items-center gap-2">
+                    {% if loan.lender_accepted %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Acknowledged
+                        </span>
+                        <span class="text-[10px] text-slate-400">Signed {{ loan.lender_accepted_at|format_date }}</span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            <i data-lucide="clock" class="w-3.5 h-3.5"></i> Awaiting Signature
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Terms Table -->
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-3">Agreed Financial Terms</h2>
+            <div class="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 text-sm">
+                <div class="flex justify-between py-3 px-5 bg-white">
+                    <span class="text-slate-600 font-medium">Principal Amount</span>
+                    <span class="font-bold text-slate-900 font-display text-base">{{ loan.principal_minor|currency }} {{ loan.currency }}</span>
+                </div>
+                <div class="flex justify-between py-3 px-5 bg-slate-50/50">
+                    <span class="text-slate-600 font-medium">Mutually Agreed Fee</span>
+                    <span class="font-bold text-slate-900 font-display text-base">{{ loan.fee_minor|currency }} {{ loan.currency }}</span>
+                </div>
+                <div class="flex justify-between py-3 px-5 bg-bordeaux-50/40 text-bordeaux-950">
+                    <span class="font-bold">Total Repayment Obligation</span>
+                    <span class="font-extrabold font-display text-lg text-bordeaux-900">{{ loan.total_due_minor|currency }} {{ loan.currency }}</span>
+                </div>
+                <div class="flex justify-between py-3 px-5 bg-white">
+                    <span class="text-slate-600 font-medium">Repayment Due Date</span>
+                    <span class="font-bold text-slate-900">{{ loan.due_date|format_date }}</span>
+                </div>
+                <div class="flex justify-between py-3 px-5 bg-slate-50/50">
+                    <span class="text-slate-600 font-medium">Creation Date</span>
+                    <span class="text-slate-700">{{ loan.created_at[:10]|format_date }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Standard Community Conditions -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
+            <h3 class="font-bold text-slate-800 uppercase tracking-wider text-[11px]">Binding Community Conditions:</h3>
+            <ol class="list-decimal pl-5 space-y-1.5 leading-relaxed">
+                <li>Both parties confirm they belong to the <strong>{{ loan.community_name }}</strong> savings group and agree to adhere to community dispute resolution mechanisms.</li>
+                <li>The borrower undertakes to simulate or complete repayment on or before <strong>{{ loan.due_date|format_date }}</strong>.</li>
+                <li>No loan becomes active until both the borrower and lender individually acknowledge and verify these identical terms.</li>
+                <li>Any simulated transactions recorded on MukoLend serve as a shared, immutable audit ledger for group transparency.</li>
+            </ol>
+        </div>
+
+        <!-- Action / Dual Sign-off Form -->
+        {% if can_acknowledge %}
+        <div class="p-6 rounded-2xl bg-amber-50 border-2 border-amber-300 space-y-4">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+                <div>
+                    <h4 class="font-bold text-sm text-amber-950">Your Formal Acknowledgement Required</h4>
+                    <p class="text-xs text-amber-800 mt-1">
+                        {% if is_borrower %}
+                            You are the borrower. Please review the principal ({{ loan.principal_minor|currency }}), fee ({{ loan.fee_minor|currency }}), and due date ({{ loan.due_date|format_date }}). By clicking below, you confirm your obligation to repay this loan under {{ loan.community_name }} community rules.
+                        {% elif is_lender %}
+                            You are the lender. Please confirm that you are providing {{ loan.principal_minor|currency }} to {{ loan.borrower_name }} with repayment due on {{ loan.due_date|format_date }}.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('loan.acknowledge', loan_id=loan.id) }}" method="POST" class="pt-2 flex justify-end">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="px-6 py-3 rounded-xl font-bold text-sm text-white bg-bordeaux-800 hover:bg-bordeaux-900 shadow-md transition-all flex items-center gap-2">
+                    <i data-lucide="check-check" class="w-4 h-4"></i>
+                    Acknowledge & Sign Agreement
+                </button>
+            </form>
+        </div>
+        {% elif loan.status == 'active' %}
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+                <span>This loan agreement is <strong>Active and Binding</strong>. Both parties have successfully acknowledged the terms.</span>
+            </div>
+            <a href="{{ url_for('loan.detail', loan_id=loan.id) }}" class="font-bold underline text-emerald-900">
+                View Loan Tracking &rarr;
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

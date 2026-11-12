@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}MukoLend — Borrow Through Trust, Repay With Confidence{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-gradient-to-b from-bordeaux-950 via-bordeaux-900 to-slate-900 text-white pt-16 pb-24 lg:pt-24 lg:pb-32">
+    <!-- Subtle Background Grid -->
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#C4C3D0_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center max-w-3xl mx-auto space-y-6">
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bordeaux-800/80 border border-silver-400/30 text-silver-300 text-xs font-semibold tracking-wide shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-silver-400 animate-ping"></span>
+                Zimbabwe Community-Based Peer-to-Peer Lending
+            </div>
+
+            <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                Borrow through <span class="text-transparent bg-clip-text bg-gradient-to-r from-silver-300 via-silver-400 to-white">trust</span>.<br/>
+                Repay with <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-silver-300 to-amber-200">confidence</span>.
+            </h1>
+
+            <p class="text-base sm:text-lg text-silver-300 leading-relaxed font-normal">
+                Inspired by Zimbabwe's time-honoured <em>Mukando</em> savings model, MukoLend empowers trusted savings circles, cooperatives, and neighborhood groups to formalise informal micro-loans with mutual clarity, shared records, and zero ambiguity.
+            </p>
+
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                {% if current_user %}
+                    <a href="{{ url_for('main.dashboard') }}" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-silver-400 hover:bg-silver-300 text-bordeaux-950 font-bold text-sm shadow-lg transition-all hover:scale-102 flex items-center justify-center gap-2">
+                        <span>Go to Dashboard</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-silver-400 hover:bg-silver-300 text-bordeaux-950 font-bold text-sm shadow-lg transition-all hover:scale-102 flex items-center justify-center gap-2">
+                        <span>Get Started Free</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-bordeaux-800/80 hover:bg-bordeaux-700 text-white font-semibold text-sm border border-bordeaux-600 transition-all flex items-center justify-center gap-2">
+                        <span>Sign In</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="pt-2 text-xs text-silver-400 flex items-center justify-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+                <span>Fast test? Use the role switcher bar at the very top of the screen anytime!</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Aggregated Metrics Strip -->
+<section class="bg-white border-b border-slate-200 py-8 shadow-xs relative z-20 -mt-8 max-w-6xl mx-auto rounded-2xl">
+    <div class="px-6 sm:px-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
+            <div class="p-2">
+                <div class="text-2xl sm:text-3xl font-extrabold text-bordeaux-800 font-display">{{ active_comms }}</div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Active Communities</div>
+            </div>
+            <div class="p-2">
+                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">{{ total_loans }}</div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Peer Loans Issued</div>
+            </div>
+            <div class="p-2">
+                <div class="text-2xl sm:text-3xl font-extrabold text-bordeaux-800 font-display">{{ total_volume_minor|currency }}</div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Total Capital Lent</div>
+            </div>
+            <div class="p-2">
+                <div class="text-2xl sm:text-3xl font-extrabold text-emerald-700 font-display">{{ repaid_loans }}</div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Settled Agreements</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why MukoLend? Section -->
+<section id="why" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-bordeaux-700 mb-2">Community Trust Infrastructure</h2>
+            <h3 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Why MukoLend?
+            </h3>
+            <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                In Zimbabwe, hundreds of thousands rely on Mukando savings clubs and informal borrowing. But when arrangements are kept only in WhatsApp screenshots or verbal recollections, disagreements happen.
+            </p>
+        </div>
+
+        <!-- 4 Core Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Card 1: Trusted Communities -->
+            <div class="card-fintech p-6 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-bordeaux-50 border border-bordeaux-100 flex items-center justify-center text-bordeaux-800 mb-4">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-base text-slate-900 mb-2">Trusted Communities</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Lending occurs strictly inside verified circles with private invitation codes. Only members you know and trust can view or fund requests.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-bordeaux-700">
+                    No random public lenders &rarr;
+                </div>
+            </div>
+
+            <!-- Card 2: Transparent Agreements -->
+            <div class="card-fintech p-6 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-bordeaux-50 border border-bordeaux-100 flex items-center justify-center text-bordeaux-800 mb-4">
+                        <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-base text-slate-900 mb-2">Transparent Agreements</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Dual acknowledgement required. Both borrower and lender review and lock in the exact principal, agreed fee, and due date before activation.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-bordeaux-700">
+                    Zero hidden charges &rarr;
+                </div>
+            </div>
+
+            <!-- Card 3: Repayment Tracking -->
+            <div class="card-fintech p-6 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-bordeaux-50 border border-bordeaux-100 flex items-center justify-center text-bordeaux-800 mb-4">
+                        <i data-lucide="receipt" class="w-6 h-6"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-base text-slate-900 mb-2">Repayment Tracking</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Both parties share an identical real-time ledger. Every installment is verified with a reference code, automatically updating the remaining balance.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-bordeaux-700">
+                    Single source of truth &rarr;
+                </div>
+            </div>
+
+            <!-- Card 4: Financial Accountability -->
+            <div class="card-fintech p-6 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-bordeaux-50 border border-bordeaux-100 flex items-center justify-center text-bordeaux-800 mb-4">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-base text-slate-900 mb-2">Financial Accountability</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Due-date indicators, overdue loan monitoring, and full audit logging create accountability without predatory commercial algorithms.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-bordeaux-700">
+                    Empowering honesty &rarr;
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- How It Works: Step-by-Step Explanation -->
+<section id="how-it-works" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-bordeaux-700 mb-2">Operational Workflow</h2>
+            <h3 class="font-display text-3xl font-extrabold text-slate-900 tracking-tight">
+                How Community Lending Works on MukoLend
+            </h3>
+            <p class="mt-3 text-slate-600 text-sm">
+                A structured four-step lifecycle from emergency request to fulfilled agreement.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 relative">
+                <div class="w-10 h-10 rounded-xl bg-bordeaux-800 text-white font-extrabold flex items-center justify-center text-base mb-4 shadow">
+                    1
+                </div>
+                <h4 class="font-display font-bold text-slate-900 text-sm mb-1.5">Join a Trusted Circle</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Establish or join a Mukando savings club using a secure, private invitation code generated by the club administrator.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 relative">
+                <div class="w-10 h-10 rounded-xl bg-bordeaux-800 text-white font-extrabold flex items-center justify-center text-base mb-4 shadow">
+                    2
+                </div>
+                <h4 class="font-display font-bold text-slate-900 text-sm mb-1.5">Submit Clear Request</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Borrower submits a short-term loan request specifying the exact amount, reason, and proposed repayment due date.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 relative">
+                <div class="w-10 h-10 rounded-xl bg-bordeaux-800 text-white font-extrabold flex items-center justify-center text-base mb-4 shadow">
+                    3
+                </div>
+                <h4 class="font-display font-bold text-slate-900 text-sm mb-1.5">Dual Agreement Lock</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    A fellow member accepts the request. Both parties must separately acknowledge the terms before the loan becomes active.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 relative">
+                <div class="w-10 h-10 rounded-xl bg-bordeaux-800 text-white font-extrabold flex items-center justify-center text-base mb-4 shadow">
+                    4
+                </div>
+                <h4 class="font-display font-bold text-slate-900 text-sm mb-1.5">Track &amp; Settle</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Borrower logs payments with transaction reference numbers. When the balance hits zero, the loan closes automatically.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Simulation Disclaimer Box -->
+<section class="py-16 bg-bordeaux-950 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-bordeaux-900/90 rounded-2xl p-8 border border-bordeaux-700/80 shadow-xl space-y-4 text-center sm:text-left flex flex-col sm:flex-row items-center gap-6">
+            <div class="w-16 h-16 rounded-2xl bg-silver-400 text-bordeaux-950 flex items-center justify-center font-bold shrink-0 shadow-md">
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+            </div>
+            <div class="space-y-2">
+                <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                    Important Simulation Disclosure
+                </span>
+                <h3 class="font-display text-xl font-bold text-white">
+                    Simulated Transactions — No Real Money Transferred
+                </h3>
+                <p class="text-xs text-silver-300 leading-relaxed">
+                    MukoLend is a record-keeping and mutual agreement management tool for community groups. This fintech MVP operates entirely on simulated transaction references. We do not integrate with real mobile money or banking networks, and we do not guarantee loans, repayment, or returns.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-16 bg-white border-t border-slate-100">
+    <div class="max-w-4xl mx-auto px-4 text-center space-y-6">
+        <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">
+            Ready to Bring Transparency to Your Mukando Circle?
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
+            Create an account, establish your savings club, and start managing peer micro-credit through clear mutual agreements.
+        </p>
+        <div class="pt-2 flex justify-center gap-4">
+            <a href="{{ url_for('auth.register') }}" class="px-6 py-3 rounded-xl bg-bordeaux-800 hover:bg-bordeaux-700 text-white font-bold text-xs shadow-md transition-all">
+                Create Account
+            </a>
+            <a href="{{ url_for('community.index') }}" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-all">
+                Explore Communities
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

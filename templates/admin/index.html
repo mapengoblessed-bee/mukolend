@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}System Administration | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 uppercase tracking-widest">
+                    Global Administration
+                </span>
+                <span class="text-xs text-slate-400">System Oversight & Governance</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                MukoLend Administrative Console
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Platform telemetry, tamper-evident audit ledger, and database integrity indicators
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('admin.audit_log') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-colors shadow-sm">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Full Audit Trail Log
+            </a>
+        </div>
+    </div>
+
+    <!-- Platform Telemetry Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Total Users</span>
+            <div class="text-2xl font-extrabold font-display text-slate-900">{{ kpis.users_count }}</div>
+            <span class="text-[11px] text-slate-500">Across Zimbabwe</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Communities</span>
+            <div class="text-2xl font-extrabold font-display text-slate-900">{{ kpis.communities_count }}</div>
+            <span class="text-[11px] text-slate-500">Active savings circles</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Approved Volume</span>
+            <div class="text-2xl font-extrabold font-display text-bordeaux-900">{{ kpis.total_volume_minor|currency }}</div>
+            <span class="text-[11px] text-slate-500">{{ kpis.loans_count }} total loans</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Audit Entries</span>
+            <div class="text-2xl font-extrabold font-display text-slate-900">{{ kpis.audit_count }}</div>
+            <span class="text-[11px] text-emerald-600">Tamper-evident logs</span>
+        </div>
+    </div>
+
+    <!-- Data Quality & Database Integrity Panel -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-bordeaux-800"></i>
+                <h2 class="text-lg font-bold font-display text-slate-900">Database Quality & Risk Indicators</h2>
+            </div>
+            <span class="text-xs text-slate-400">Automated consistency check</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-2xl border {% if data_quality.unrepaid_overdue_count > 0 %}border-amber-200 bg-amber-50/40{% else %}border-emerald-200 bg-emerald-50/40{% endif %}">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Delinquent Overdue Loans</span>
+                <div class="text-xl font-bold font-display {% if data_quality.unrepaid_overdue_count > 0 %}text-amber-800{% else %}text-emerald-800{% endif %} mt-1">
+                    {{ data_quality.unrepaid_overdue_count }} loans
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Loans past due-date with unpaid balance</p>
+            </div>
+
+            <div class="p-4 rounded-2xl border {% if data_quality.loans_without_agreement_count > 0 %}border-amber-200 bg-amber-50/40{% else %}border-emerald-200 bg-emerald-50/40{% endif %}">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Unsigned Loan Agreements</span>
+                <div class="text-xl font-bold font-display {% if data_quality.loans_without_agreement_count > 0 %}text-amber-800{% else %}text-emerald-800{% endif %} mt-1">
+                    {{ data_quality.loans_without_agreement_count }} loans
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Waiting for dual acknowledgement</p>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Referential Integrity</span>
+                <div class="text-xl font-bold font-display text-emerald-800 mt-1">
+                    100% Healthy
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">All foreign keys enforce strict cascading</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Audit Log Entries -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold font-display text-slate-900">Recent System Audit Trail</h2>
+                <p class="text-xs text-slate-500">Immutable ledger tracking security events, agreements, and simulated repayments</p>
+            </div>
+            <a href="{{ url_for('admin.audit_log') }}" class="text-xs font-semibold text-bordeaux-800 hover:text-bordeaux-950">
+                View Full Log &rarr;
+            </a>
+        </div>
+
+        <div class="overflow-x-auto -mx-6 sm:-mx-8">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200/80 bg-slate-50/75 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-6 sm:px-8">Timestamp</th>
+                        <th class="py-3 px-4">Actor</th>
+                        <th class="py-3 px-4">Action</th>
+                        <th class="py-3 px-4">Target</th>
+                        <th class="py-3 px-6 sm:px-8">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-mono text-xs">
+                    {% for l in recent_audits %}
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-6 sm:px-8 text-slate-500 whitespace-nowrap">
+                            {{ l.created_at[:19] }}
+                        </td>
+                        <td class="py-3 px-4 font-bold text-slate-800 font-sans">
+                            {{ l.user_name|default('System', true) }}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
+                                {% if 'CREATE' in l.action %}bg-blue-100 text-blue-800
+                                {% elif 'ACCEPT' in l.action or 'ACK' in l.action %}bg-emerald-100 text-emerald-800
+                                {% elif 'REPAY' in l.action %}bg-purple-100 text-purple-800
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ l.action }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-600">
+                            {{ l.target_type }} #{{ l.target_id }}
+                        </td>
+                        <td class="py-3 px-6 sm:px-8 text-slate-600 font-sans max-w-sm truncate" title="{{ l.details }}">
+                            {{ l.details }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

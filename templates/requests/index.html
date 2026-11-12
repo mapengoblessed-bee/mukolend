@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Requests | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                Community Loan Requests
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Browse open funding requests from trusted members across your Mukando communities
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('loan_request.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-colors shadow-sm">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Request a Loan
+            </a>
+        </div>
+    </div>
+
+    <!-- Requests Table / Cards -->
+    {% if requests %}
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200/80 bg-slate-50/75 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-3.5 px-6">ID & Community</th>
+                        <th class="py-3.5 px-4">Borrower</th>
+                        <th class="py-3.5 px-4">Amount Requested</th>
+                        <th class="py-3.5 px-4">Proposed Due Date</th>
+                        <th class="py-3.5 px-4">Reason / Purpose</th>
+                        <th class="py-3.5 px-4">Status</th>
+                        <th class="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for r in requests %}
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-slate-900">#REQ-{{ "%04d"|format(r.id) }}</div>
+                            <div class="text-xs text-slate-500 truncate max-w-[150px]">{{ r.community_name }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="font-medium text-slate-900 flex items-center gap-1.5">
+                                {{ r.borrower_name }}
+                                {% if r.borrower_id == current_user.id %}
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">You</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-[11px] text-slate-400">Requested {{ r.created_at[:10]|format_date }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="font-extrabold text-base text-slate-900">{{ r.amount_minor|currency }}</div>
+                            <div class="text-[11px] text-slate-400">{{ r.currency }}</div>
+                        </td>
+                        <td class="py-4 px-4 text-slate-700 font-medium">
+                            {{ r.proposed_due_date|format_date }}
+                        </td>
+                        <td class="py-4 px-4 text-slate-600 max-w-xs">
+                            <p class="truncate" title="{{ r.reason }}">{{ r.reason }}</p>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                                {% if r.status == 'pending' %}bg-amber-100 text-amber-800
+                                {% elif r.status == 'accepted' %}bg-emerald-100 text-emerald-800
+                                {% elif r.status == 'converted' %}bg-blue-100 text-blue-800
+                                {% elif r.status == 'declined' %}bg-rose-100 text-rose-800
+                                {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ r.status|capitalize }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ url_for('loan_request.detail', request_id=r.id) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+                                    Review
+                                </a>
+                                {% if r.status == 'pending' and r.borrower_id != current_user.id %}
+                                <a href="{{ url_for('loan_request.detail', request_id=r.id) }}#accept" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-colors shadow-xs">
+                                    Accept & Fund
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 max-w-xl mx-auto space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-bordeaux-50 text-bordeaux-800 mx-auto flex items-center justify-center">
+            <i data-lucide="inbox" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-xl font-bold font-display text-slate-900">No Open Requests</h2>
+        <p class="text-sm text-slate-500">
+            There are currently no pending loan requests in your communities. You can submit a request if you need short-term funds.
+        </p>
+        <div class="pt-2">
+            <a href="{{ url_for('loan_request.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Submit Loan Request
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

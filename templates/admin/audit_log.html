@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Trail Ledger | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <a href="{{ url_for('admin.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 mb-2">
+                &larr; Back to Admin Overview
+            </a>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                Tamper-Evident Audit Log
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Immutable record of all community transactions, user registrations, agreements, and simulated repayments
+            </p>
+        </div>
+
+        <div>
+            <a href="{{ url_for('analytics.export_csv', table_name='audit_log') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-colors">
+                <i data-lucide="download" class="w-4 h-4 text-slate-500"></i>
+                Export Audit CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
+        <form action="{{ url_for('admin.audit_log') }}" method="GET" class="flex flex-wrap items-end gap-4">
+            <div class="w-full sm:w-64">
+                <label for="action" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Filter by Action
+                </label>
+                <select id="action" name="action" class="block w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:ring-2 focus:ring-bordeaux-800">
+                    <option value="">All Actions</option>
+                    {% for act in all_actions %}
+                    <option value="{{ act }}" {% if action_filter == act %}selected{% endif %}>{{ act }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="w-full sm:w-64">
+                <label for="target_type" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Target Type
+                </label>
+                <select id="target_type" name="target_type" class="block w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:ring-2 focus:ring-bordeaux-800">
+                    <option value="">All Types</option>
+                    <option value="user" {% if target_type_filter == 'user' %}selected{% endif %}>User</option>
+                    <option value="community" {% if target_type_filter == 'community' %}selected{% endif %}>Community</option>
+                    <option value="loan_request" {% if target_type_filter == 'loan_request' %}selected{% endif %}>Loan Request</option>
+                    <option value="loan" {% if target_type_filter == 'loan' %}selected{% endif %}>Loan</option>
+                    <option value="repayment" {% if target_type_filter == 'repayment' %}selected{% endif %}>Repayment</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="submit" class="py-2 px-4 rounded-xl text-xs font-bold text-white bg-bordeaux-800 hover:bg-bordeaux-900 shadow-xs transition-colors flex items-center gap-1.5">
+                    <i data-lucide="filter" class="w-3.5 h-3.5"></i> Filter
+                </button>
+                <a href="{{ url_for('admin.audit_log') }}" class="py-2 px-3 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Full Audit Table -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200/80 bg-slate-50/75 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-3.5 px-6">ID & Timestamp</th>
+                        <th class="py-3.5 px-4">Actor</th>
+                        <th class="py-3.5 px-4">Action</th>
+                        <th class="py-3.5 px-4">Target Entity</th>
+                        <th class="py-3.5 px-6">Event Details</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-mono text-xs">
+                    {% for l in logs %}
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-6">
+                            <div class="font-bold text-slate-800">#LOG-{{ "%05d"|format(l.id) }}</div>
+                            <div class="text-[11px] text-slate-400 font-sans">{{ l.created_at }}</div>
+                        </td>
+                        <td class="py-3.5 px-4 font-sans font-medium text-slate-800">
+                            {{ l.user_name|default('System', true) }}
+                            {% if l.user_id %}
+                                <span class="text-[10px] text-slate-400 block font-mono">UID: #{{ l.user_id }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
+                                {% if 'CREATE' in l.action %}bg-blue-100 text-blue-800
+                                {% elif 'ACCEPT' in l.action or 'ACK' in l.action %}bg-emerald-100 text-emerald-800
+                                {% elif 'REPAY' in l.action %}bg-purple-100 text-purple-800
+                                {% elif 'DECLINE' in l.action or 'CANCEL' in l.action %}bg-rose-100 text-rose-800
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ l.action }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-slate-700 font-sans">
+                            <span class="font-bold capitalize">{{ l.target_type }}</span>
+                            {% if l.target_id %}
+                                <span class="font-mono text-slate-500">#{{ l.target_id }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-6 text-slate-600 font-sans text-xs">
+                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200/60 font-mono text-[11px] break-all">
+                                {{ l.details }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

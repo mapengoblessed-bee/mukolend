@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}How MukoLend Works & Simulation Guide | Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Platform Architecture & Guide
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold font-display text-slate-900 tracking-tight">
+            How MukoLend Works: Trust, Technology & Transactions
+        </h1>
+        <p class="text-slate-600 text-sm mt-2 leading-relaxed">
+            Understanding the Mukando tradition in Zimbabwe, how our prototype simulates the end-to-end peer lending lifecycle, and our business model.
+        </p>
+    </div>
+
+    <!-- The Problem We Solve -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-4">
+        <h2 class="font-display font-bold text-xl text-slate-900 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-emerald-600"></i>
+            The Core Challenge: Managing Existing Trust
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            In Zimbabwe, millions of dollars circulate each month through <em>Mukando</em> (rotating and accumulating savings clubs). When someone faces an emergency—like school fees, medical supplies, or urgent stock clearance—fellow group members are often willing to extend a micro-loan.
+        </p>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            However, these loans are almost entirely arranged via informal verbal agreements or scattered WhatsApp chats. Over time:
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-800 block mb-1">Lost Terms</span>
+                <p class="text-slate-500">Agreed interest rates (10% vs 15%) get forgotten or disputed after weeks have passed.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-800 block mb-1">Payment Confusion</span>
+                <p class="text-slate-500">Partial payments sent via EcoCash lack a clear running balance visible to both parties.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-800 block mb-1">Untracked Reputation</span>
+                <p class="text-slate-500">Honorable borrowers have no portable record of good repayment to show other lenders.</p>
+            </div>
+        </div>
+        <p class="text-xs sm:text-sm text-emerald-800 font-semibold bg-emerald-50 p-3.5 rounded-xl border border-emerald-200">
+            MukoLend does not pretend technology eliminates financial risk. Instead, it provides a transparent, tamper-evident ledger so both parties have the exact same records at all times.
+        </p>
+    </div>
+
+    <!-- How the Simulation Works -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-6">
+        <h2 class="font-display font-bold text-xl text-slate-900 flex items-center gap-2">
+            <i data-lucide="cpu" class="w-5 h-5 text-emerald-600"></i>
+            The Simulation Engine: Built for Zimbabwe Realities
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            In Zimbabwe, formal bank cards are rarely used for informal loans. Instead, people rely on:
+        </p>
+
+        <div class="space-y-4">
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xs text-slate-900">EcoCash USD Mobile Wallet</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Lenders and borrowers transfer funds via USSD or EcoCash app. In MukoLend, the lender inputs the generated transaction reference (e.g. <code>EC-89231019A</code>). The borrower verifies and the balance reconciles automatically.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="w-10 h-10 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold shrink-0">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xs text-slate-900">InnBucks Voucher Codes</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        InnBucks operates across hundreds of Simbisa outlets (Chicken Inn, Pizza Inn) across Zimbabwe. Users simulate sending voucher authorization codes which are logged into the audit ledger.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">
+                    <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xs text-slate-900">Cryptographic Promissory Note</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Each loan generates a SHA-256 digital agreement hash, locking terms, due date, and parties into an immutable promissory certificate that can be printed or saved as PDF.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step-by-Step Walkthrough to Test the Prototype -->
+    <div class="bg-gradient-to-tr from-slate-900 to-emerald-950 rounded-2xl p-6 sm:p-8 text-white space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 font-bold flex items-center justify-center">
+                <i data-lucide="play" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h2 class="font-display font-bold text-xl text-white">How To Test This Prototype (3-Minute Tour)</h2>
+                <p class="text-xs text-slate-300">Use the top switcher bar to test both sides of the transaction:</p>
+            </div>
+        </div>
+
+        <ol class="space-y-4 text-xs sm:text-sm text-slate-300">
+            <li class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">1</span>
+                <div>
+                    <strong class="text-white">Switch to Farai (Lender):</strong> Click on <em>Farai (94★)</em> in the top navigation bar. Go to the <a href="{{ url_for('marketplace') }}" class="text-emerald-400 underline">Loan Board</a> and view Tinashe's open loan request (<a href="/loans/4" class="text-emerald-400 underline">MKL-2026-1250</a>).
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">2</span>
+                <div>
+                    <strong class="text-white">Accept & Disburse Funds:</strong> Click "Accept & Commit to Fund". Then on the next screen, enter a simulated EcoCash reference (or leave blank to auto-generate) and click "Confirm Funds Disbursed". The loan becomes <strong>ACTIVE</strong>!
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">3</span>
+                <div>
+                    <strong class="text-white">Switch to Tinashe (Borrower):</strong> Click <em>Tinashe (82★)</em> on the top bar. Go to your <a href="{{ url_for('dashboard') }}" class="text-emerald-400 underline">Dashboard</a> or open the loan. You will see the active debt with the repayment countdown!
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">4</span>
+                <div>
+                    <strong class="text-white">Make Partial or Full Repayment:</strong> Click "Repay", enter an amount (e.g. $100 or full settlement), submit payment, and watch the progress bar and audit timeline update instantly!
+                </div>
+            </li>
+            <li class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">5</span>
+                <div>
+                    <strong class="text-white">Leave Mutual Trust Review & Inspect Note:</strong> Once fully repaid, rate your partner with 5 stars to boost their trust score. Click "Digital Promissory Note" to view the print-ready legal certificate!
+                </div>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Proposed Business Model -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-4">
+        <h2 class="font-display font-bold text-xl text-slate-900 flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
+            Proposed Business Model
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            As outlined in our pitch, MukoLend’s sustainable growth strategy begins with:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-emerald-800 text-sm block mb-1">1. Subscription Tools for Savings Clubs</span>
+                <p class="text-slate-600 leading-relaxed">
+                    Mukando groups pay a modest monthly SaaS fee ($3 - $5 USD/month per group) for automated bookkeeping, PDF monthly statements for physical meetings, SMS repayment reminders, and treasurer audit dashboards.
+                </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-emerald-800 text-sm block mb-1">2. Strategic Ecosystem Partnerships</span>
+                <p class="text-slate-600 leading-relaxed">
+                    Direct API integrations with mobile network operators (EcoCash, NetOne OneMoney) and retail voucher networks (InnBucks) for automated payment reconciliation fees, with micro-insurance add-ons (hospital cash, stock protection).
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+
+{% block title %}Member Dashboard | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Top Welcome Banner & Persona Profile Card -->
+    <div class="bg-gradient-to-r from-bordeaux-950 via-bordeaux-900 to-bordeaux-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-bordeaux-700/50">
+        <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-silver-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <!-- Left: Member Identity -->
+            <div class="flex items-center gap-5">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-silver-400/20 border-2 border-silver-400/40 text-silver-100 flex items-center justify-center font-bold text-2xl sm:text-3xl font-display shadow-inner">
+                    {{ current_user.full_name[:2]|upper }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-white">
+                            {{ current_user.full_name }}
+                        </h1>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified Peer
+                        </span>
+                        {% if current_user.role == 'admin' %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40 uppercase">
+                                <i data-lucide="crown" class="w-3.5 h-3.5"></i> Global Admin
+                            </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-silver-300 text-sm mt-1 flex items-center gap-2">
+                        <span><i data-lucide="mail" class="inline w-3.5 h-3.5 text-silver-400"></i> {{ current_user.email }}</span>
+                        <span>•</span>
+                        <span>Member since {{ current_user.created_at[:10]|format_date }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Action Quick Links -->
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ url_for('loan_request.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-silver-400 hover:bg-silver-300 text-bordeaux-950 transition-all shadow-md">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-bordeaux-950"></i>
+                    Request Loan
+                </a>
+                <a href="{{ url_for('loan_request.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-bordeaux-800/80 hover:bg-bordeaux-700 text-silver-100 border border-bordeaux-600/60 transition-all">
+                    <i data-lucide="search" class="w-4 h-4 text-silver-300"></i>
+                    Browse Requests
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Urgent Action Alerts (Overdue or Due Within 3 Days) -->
+    {% if urgent_loans %}
+    <div class="space-y-3">
+        {% for ul in urgent_loans %}
+        <div class="p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 {% if ul.indicator.code == 'overdue' %}bg-rose-50 border-rose-200 text-rose-900{% else %}bg-amber-50 border-amber-200 text-amber-900{% endif %}">
+            <div class="flex items-start gap-3">
+                <div class="p-2 rounded-xl {% if ul.indicator.code == 'overdue' %}bg-rose-100 text-rose-700{% else %}bg-amber-100 text-amber-700{% endif %} shrink-0 mt-0.5">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-sm sm:text-base">
+                        {% if ul.indicator.code == 'overdue' %}
+                            Payment Overdue: Loan #ML-{{ "%04d"|format(ul.id) }} ({{ ul.community_name }})
+                        {% else %}
+                            Upcoming Payment Due: Loan #ML-{{ "%04d"|format(ul.id) }} ({{ ul.community_name }})
+                        {% endif %}
+                    </h2>
+                    <p class="text-xs sm:text-sm mt-0.5 {% if ul.indicator.code == 'overdue' %}text-rose-700{% else %}text-amber-700{% endif %}">
+                        Outstanding balance: <strong class="font-bold">{{ ul.outstanding_minor|currency }}</strong>. Due Date: <strong>{{ ul.due_date|format_date }}</strong>.
+                        Lender: {{ ul.lender_name }}.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="{{ url_for('repayment.create', loan_id=ul.id) }}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white shadow-sm transition-all {% if ul.indicator.code == 'overdue' %}bg-rose-700 hover:bg-rose-800{% else %}bg-amber-600 hover:bg-amber-700{% endif %}">
+                    Record Simulated Payment
+                </a>
+                <a href="{{ url_for('loan.detail', loan_id=ul.id) }}" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                    View Agreement
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 8 Executive Summary Cards -->
+    <section aria-labelledby="kpi-heading">
+        <div class="flex items-center justify-between mb-4">
+            <h2 id="kpi-heading" class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+                <i data-lucide="layout-grid" class="w-5 h-5 text-bordeaux-800"></i>
+                Lending Portfolio Overview
+            </h2>
+            <span class="text-xs text-slate-500">{{ loan_cats.repaid|length }} fully repaid</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 1. Pending Loan Requests -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>My Loan Requests</span>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                            <i data-lucide="file-question" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-extrabold font-display text-slate-900">
+                        {{ cards.total_requests }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">
+                        Requested {{ cards.total_requested_minor|currency }} · Pending {{ cards.pending_requests }} ({{ cards.pending_requested_minor|currency }})
+                    </span>
+                    <a href="{{ url_for('loan_request.index') }}" class="text-bordeaux-800 hover:text-bordeaux-950 font-semibold inline-flex items-center gap-0.5">
+                        Manage &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Loans Awaiting Dual Agreement -->
+            <div class="bg-white p-5 rounded-2xl border {% if cards.loans_awaiting_agreement > 0 %}border-amber-300 bg-amber-50/20{% else %}border-slate-200/80{% endif %} shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Awaiting Agreement</span>
+                        <div class="w-8 h-8 rounded-lg {% if cards.loans_awaiting_agreement > 0 %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %} flex items-center justify-center">
+                            <i data-lucide="file-signature" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-extrabold font-display {% if cards.loans_awaiting_agreement > 0 %}text-amber-700{% else %}text-slate-900{% endif %}">
+                        {{ cards.loans_awaiting_agreement }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Dual sign-off pending</span>
+                    <a href="{{ url_for('loan.index', tab='awaiting') }}" class="text-amber-700 hover:text-amber-800 font-semibold inline-flex items-center gap-0.5">
+                        Sign terms &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Active Loans as Borrower -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Active as Borrower</span>
+                        <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center">
+                            <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-extrabold font-display text-slate-900">
+                        {{ cards.active_borrowed }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Principal borrowed: {{ cards.borrowed_principal_minor|currency }}</span>
+                    <a href="{{ url_for('loan.index', tab='borrowed') }}" class="text-bordeaux-800 hover:text-bordeaux-950 font-semibold inline-flex items-center gap-0.5">
+                        View &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. Active Loans as Lender -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Active as Lender</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-extrabold font-display text-emerald-700">
+                        {{ cards.active_provided }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Principal lent: {{ cards.lent_principal_minor|currency }}</span>
+                    <a href="{{ url_for('loan.index', tab='provided') }}" class="text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-0.5">
+                        Track &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. Outstanding Amount Owed (Debt) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Total Debt to Repay</span>
+                        <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center">
+                            <i data-lucide="wallet" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-display text-rose-700">
+                        {{ cards.outstanding_owed_minor|currency }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Principal + agreed fees</span>
+                    <a href="{{ url_for('loan.index', tab='borrowed') }}" class="text-rose-700 hover:text-rose-800 font-semibold inline-flex items-center gap-0.5">
+                        Settle &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. Amount Owed to User (Receivable) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Receivables to Collect</span>
+                        <div class="w-8 h-8 rounded-lg bg-bordeaux-50 text-bordeaux-800 flex items-center justify-center">
+                            <i data-lucide="coins" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-display text-bordeaux-900">
+                        {{ cards.outstanding_to_receive_minor|currency }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Expected from peers</span>
+                    <a href="{{ url_for('loan.index', tab='provided') }}" class="text-bordeaux-800 hover:text-bordeaux-950 font-semibold inline-flex items-center gap-0.5">
+                        Details &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 7. Total Simulated Repayments Made -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Lifetime Repayments Made</span>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                            <i data-lucide="history" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
+                        {{ cards.total_repayments_made_minor|currency }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Received as lender: {{ cards.total_repayments_received_minor|currency }}</span>
+                    <a href="{{ url_for('repayment.index') }}" class="text-bordeaux-800 hover:text-bordeaux-950 font-semibold inline-flex items-center gap-0.5">
+                        Ledger &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- 8. Overdue Loans -->
+            <div class="bg-white p-5 rounded-2xl border {% if cards.overdue_loans > 0 %}border-rose-300 bg-rose-50/20{% else %}border-slate-200/80{% endif %} shadow-xs hover:border-bordeaux-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Overdue Loans</span>
+                        <div class="w-8 h-8 rounded-lg {% if cards.overdue_loans > 0 %}bg-rose-100 text-rose-700{% else %}bg-slate-100 text-slate-700{% endif %} flex items-center justify-center">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-extrabold font-display {% if cards.overdue_loans > 0 %}text-rose-700{% else %}text-slate-900{% endif %}">
+                        {{ cards.overdue_loans }}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Exceeded due date</span>
+                    <a href="{{ url_for('loan.index', tab='overdue') }}" class="text-rose-700 hover:text-rose-800 font-semibold inline-flex items-center gap-0.5">
+                        Review &rarr;
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Two-Column Layout: Active Loans & Communities List -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Active Loans Ledger (2 cols) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-lg font-bold font-display text-slate-900">Active Peer Loans</h2>
+                        <p class="text-xs text-slate-500">Loans currently in active or awaiting agreement status</p>
+                    </div>
+                    <a href="{{ url_for('loan.index') }}" class="text-xs font-semibold text-bordeaux-800 hover:text-bordeaux-950 inline-flex items-center gap-1">
+                        View All Loans ({{ loan_cats.all|length }}) &rarr;
+                    </a>
+                </div>
+
+                {% set active_loans = loan_cats.all|selectattr('status', 'in', ['active', 'awaiting_agreement', 'overdue'])|list %}
+                {% if active_loans %}
+                <div class="overflow-x-auto -mx-6">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200/80 bg-slate-50/50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                                <th class="py-3 px-6">ID & Community</th>
+                                <th class="py-3 px-4">Role</th>
+                                <th class="py-3 px-4">Counterparty</th>
+                                <th class="py-3 px-4">Outstanding</th>
+                                <th class="py-3 px-4">Due Date</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-6 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for l in active_loans %}
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="py-3.5 px-6">
+                                    <div class="font-bold text-slate-900">#ML-{{ "%04d"|format(l.id) }}</div>
+                                    <div class="text-xs text-slate-500 truncate max-w-[140px]">{{ l.community_name }}</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    {% if l.borrower_id == current_user.id %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                            Borrower
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            Lender
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-medium text-slate-900">
+                                        {% if l.borrower_id == current_user.id %}
+                                            {{ l.lender_name }}
+                                        {% else %}
+                                            {{ l.borrower_name }}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-bold text-slate-900">{{ l.outstanding_minor|currency }}</div>
+                                    <div class="text-[11px] text-slate-400">of {{ l.total_due_minor|currency }}</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="text-slate-700 font-medium">{{ l.due_date|format_date }}</div>
+                                    <span class="text-[10px] font-semibold {{ l.indicator.css_class }}">
+                                        {{ l.indicator.label }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold 
+                                        {% if l.status == 'active' %}bg-emerald-100 text-emerald-800
+                                        {% elif l.status == 'awaiting_agreement' %}bg-amber-100 text-amber-800
+                                        {% elif l.status == 'overdue' %}bg-rose-100 text-rose-800
+                                        {% elif l.status == 'repaid' %}bg-slate-100 text-slate-700
+                                        {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ l.status|replace('_', ' ')|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-6 text-right">
+                                    {% if l.status == 'awaiting_agreement' %}
+                                        <a href="{{ url_for('loan.agreement', loan_id=l.id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-800 underline">
+                                            Sign Agreement
+                                        </a>
+                                    {% elif l.borrower_id == current_user.id and l.status in ['active', 'overdue'] %}
+                                        <a href="{{ url_for('repayment.create', loan_id=l.id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-bordeaux-800 hover:text-bordeaux-950 underline">
+                                            Simulate Repay
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('loan.detail', loan_id=l.id) }}" class="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900 underline">
+                                            View
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    <div class="w-12 h-12 rounded-full bg-slate-200/70 text-slate-400 mx-auto flex items-center justify-center mb-3">
+                        <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-800">No Active Loans Pending</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                        You have no outstanding loans or receivables currently active. You can request a loan or explore open community requests.
+                    </p>
+                    <div class="mt-4 flex items-center justify-center gap-3">
+                        <a href="{{ url_for('loan_request.create') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-bordeaux-800 text-white hover:bg-bordeaux-900 transition-colors">
+                            Request a Loan
+                        </a>
+                        <a href="{{ url_for('loan_request.index') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors">
+                            Browse Requests
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Communities Sidebar (1 col) -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                        <i data-lucide="users" class="w-5 h-5 text-bordeaux-800"></i>
+                        My Communities
+                    </h2>
+                    <a href="{{ url_for('community.index') }}" class="text-xs font-semibold text-bordeaux-800 hover:text-bordeaux-950">
+                        View All &rarr;
+                    </a>
+                </div>
+
+                {% if communities %}
+                <div class="space-y-3">
+                    {% for c in communities %}
+                    <div class="p-3.5 rounded-xl border border-slate-200/80 hover:border-bordeaux-300 transition-all bg-slate-50/40 flex items-start justify-between gap-3">
+                        <div>
+                            <a href="{{ url_for('community.detail', community_id=c.id) }}" class="font-bold text-sm text-slate-900 hover:text-bordeaux-800">
+                                {{ c.name }}
+                            </a>
+                            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">{{ c.description|default('Trusted community group', true) }}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded {% if c.user_role == 'admin' %}bg-amber-100 text-amber-800{% else %}bg-slate-200/80 text-slate-700{% endif %}">
+                                    {{ c.user_role|capitalize }}
+                                </span>
+                                <span class="text-[11px] text-slate-400">
+                                    {{ c.member_count }} member{% if c.member_count != 1 %}s{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('community.detail', community_id=c.id) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-bordeaux-800 hover:bg-slate-100">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-xs text-slate-500">
+                    <p>You have not joined any Mukando communities yet.</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-5 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
+                    <a href="{{ url_for('community.create') }}" class="w-full text-center py-2 px-3 rounded-xl text-xs font-semibold bg-bordeaux-50 text-bordeaux-800 hover:bg-bordeaux-100 border border-bordeaux-200 transition-colors">
+                        Create Group
+                    </a>
+                    <a href="{{ url_for('community.join') }}" class="w-full text-center py-2 px-3 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors">
+                        Join by Code
+                    </a>
+                </div>
+            </div>
+
+            <!-- Transparency & Simulation Reminder Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-bordeaux-950 rounded-2xl p-5 text-white border border-bordeaux-800/50 shadow-sm space-y-3">
+                <div class="flex items-center gap-2 text-silver-300 text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="info" class="w-4 h-4 text-silver-400"></i>
+                    Simulated MVP Sandbox
+                </div>
+                <p class="text-xs text-silver-200 leading-relaxed">
+                    MukoLend manages loan records, terms, and repayment verification for trusted Mukando groups. All balances and transactions are simulated.
+                </p>
+                <div class="pt-2 border-t border-slate-800 text-[11px] text-silver-400 flex items-center justify-between">
+                    <span>Currency: <strong>USD Cents (Minor Units)</strong></span>
+                    <a href="{{ url_for('analytics.index') }}" class="text-silver-300 hover:text-white underline">View Analytics &rarr;</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

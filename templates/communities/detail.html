@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}{{ community.name }} | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <a href="{{ url_for('community.index') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800">
+        &larr; Back to Communities
+    </a>
+
+    <section class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div class="space-y-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-bordeaux-50 text-bordeaux-800 border border-bordeaux-200">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i> Mukando Circle #{{ community.id }}
+                    </span>
+                    {% if is_member %}
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold {% if is_admin %}bg-amber-100 text-amber-800 border border-amber-300{% else %}bg-slate-100 text-slate-700{% endif %}">
+                        {% if is_admin %}Community Administrator{% else %}Active Member{% endif %}
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Preview</span>
+                    {% endif %}
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">{{ community.name }}</h1>
+                <p class="text-sm text-slate-600 max-w-2xl leading-relaxed">{{ community.description or 'No community description has been provided.' }}</p>
+                <p class="text-xs text-slate-400">
+                    Created by {{ community.creator_name }} · Established {{ community.created_at[:10]|format_date }}
+                    · {{ community.member_count }} member{% if community.member_count != 1 %}s{% endif %}
+                </p>
+            </div>
+
+            {% if is_member %}
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                {% if is_admin %}
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Member Invitation Code</span>
+                    <div class="flex items-center gap-2">
+                        <code class="text-base sm:text-lg font-mono font-extrabold text-bordeaux-800 tracking-wider">{{ community.invite_code }}</code>
+                        <button type="button" class="copy-invite-btn p-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100" data-code="{{ community.invite_code }}" title="Copy invitation code" aria-label="Copy invitation code">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <form method="POST" action="{{ url_for('community.regenerate_invite_code', community_id=community.id) }}" class="mt-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="text-xs font-semibold text-rose-700 underline">Regenerate code</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Community Invite Code</span>
+                    <code class="text-base font-mono font-bold text-bordeaux-800">{{ community.invite_code }}</code>
+                </div>
+                {% endif %}
+                <a href="{{ url_for('loan_request.create', community_id=community.id) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 shadow-sm">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Request a Loan
+                </a>
+            </div>
+            {% else %}
+            <div class="w-full lg:w-auto bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                <h2 class="font-bold text-slate-900">Join this community</h2>
+                <p class="text-xs text-slate-500 mt-1 max-w-sm">Membership requires the invitation code from a current member. This preview does not expose member or loan information.</p>
+                <a href="{{ url_for('community.join') }}" class="inline-flex mt-4 items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900">
+                    <i data-lucide="key-round" class="w-4 h-4"></i> Enter Invite Code
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if not is_member %}
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 text-sm text-slate-600">
+        Only community members can view the member roster, invite code, loan activity, and administration controls.
+    </div>
+    {% else %}
+    <section class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-slate-400">Members</span>
+            <div class="text-2xl font-extrabold text-slate-900">{{ stats.total_members }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-amber-600">Pending Requests</span>
+            <div class="text-2xl font-extrabold text-amber-700">{{ stats.pending_requests }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-emerald-700">Active Loans</span>
+            <div class="text-2xl font-extrabold text-emerald-700">{{ stats.active_loans }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-rose-600">Overdue</span>
+            <div class="text-2xl font-extrabold text-rose-700">{{ stats.overdue_loans }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-slate-500">Fully Repaid</span>
+            <div class="text-2xl font-extrabold text-slate-800">{{ stats.repaid_loans }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <span class="text-[10px] uppercase font-bold text-bordeaux-800">Outstanding</span>
+            <div class="text-lg sm:text-xl font-extrabold text-bordeaux-900">{{ stats.outstanding_minor|currency }}</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 col-span-2 sm:col-span-1">
+            <span class="text-[10px] uppercase font-bold text-slate-500">Repayments Received</span>
+            <div class="text-lg sm:text-xl font-extrabold text-emerald-700">{{ stats.repaid_volume_minor|currency }}</div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <section class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+            <div class="mb-4">
+                <h2 class="text-lg font-bold text-slate-900 font-display">Community Loan Activity</h2>
+                <p class="text-xs text-slate-500">Balances are calculated from each loan principal, agreed fee, and recorded repayments.</p>
+            </div>
+            {% if activity %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider">
+                            <th class="py-3 px-3">Loan</th><th class="py-3 px-3">Borrower / Lender</th>
+                            <th class="py-3 px-3">Principal</th><th class="py-3 px-3">Outstanding</th>
+                            <th class="py-3 px-3">Due</th><th class="py-3 px-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for loan in activity %}
+                        <tr>
+                            <td class="py-3 px-3 font-bold text-slate-900">#ML-{{ "%04d"|format(loan.id) }}</td>
+                            <td class="py-3 px-3 text-slate-700">{{ loan.borrower_name }}<span class="text-slate-400"> / </span>{{ loan.lender_name }}</td>
+                            <td class="py-3 px-3 font-semibold">{{ loan.principal_minor|currency }}</td>
+                            <td class="py-3 px-3 font-semibold">{{ loan.outstanding_minor|currency }}</td>
+                            <td class="py-3 px-3 text-slate-600">{{ loan.due_date|format_date }}</td>
+                            <td class="py-3 px-3">
+                                <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold
+                                    {% if loan.status == 'active' %}bg-emerald-100 text-emerald-800
+                                    {% elif loan.status == 'overdue' %}bg-rose-100 text-rose-800
+                                    {% elif loan.status == 'repaid' %}bg-slate-100 text-slate-700
+                                    {% elif loan.status == 'awaiting_agreement' %}bg-amber-100 text-amber-800
+                                    {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                    {{ loan.status|replace('_', ' ')|capitalize }}
+                                </span>
+                                {% if current_user_id in (loan.borrower_id, loan.lender_id) %}
+                                <a href="{{ url_for('loan.detail', loan_id=loan.id) }}" class="ml-1 text-bordeaux-800 underline">Details</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-sm text-slate-500">No loan agreements have been recorded for this community yet. Pending requests are {{ stats.pending_requests }}.</div>
+            {% endif %}
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold text-slate-900 font-display">Member Roster</h2>
+                <span class="text-xs font-semibold text-slate-400">{{ members|length }} total</span>
+            </div>
+            <div class="divide-y divide-slate-100">
+                {% for member in members %}
+                <div class="py-3 flex items-center justify-between gap-2">
+                    <div>
+                        <div class="font-bold text-sm text-slate-900">{{ member.full_name }}{% if member.id == current_user_id %} <span class="text-xs text-slate-400">(you)</span>{% endif %}</div>
+                        <div class="text-xs text-slate-500">{{ member.role|capitalize }}</div>
+                    </div>
+                    {% if is_admin and member.id != current_user_id and member.role != 'admin' %}
+                    <form method="POST" action="{{ url_for('community.remove_member', community_id=community.id, member_id=member.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="text-xs font-semibold text-rose-700 underline">Remove</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    {% if recent_events %}
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <h2 class="text-lg font-bold text-slate-900 font-display mb-3">Recent Group Activity</h2>
+        <ul class="divide-y divide-slate-100">
+            {% for event in recent_events %}
+            <li class="py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm">
+                <span class="text-slate-700">{{ event.actor_name or 'System' }} · {{ event.action|replace('_', ' ')|title }}</span>
+                <time class="text-xs text-slate-400">{{ event.created_at|format_date }}</time>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if is_admin %}
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+            <h2 class="text-lg font-bold text-slate-900 font-display mb-4">Edit Community</h2>
+            <form method="POST" action="{{ url_for('community.edit', community_id=community.id) }}" class="space-y-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="block text-xs font-bold text-slate-600" for="community-name">Name</label>
+                <input id="community-name" name="name" required minlength="3" maxlength="100" value="{{ community.name }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                <label class="block text-xs font-bold text-slate-600" for="community-description">Description</label>
+                <textarea id="community-description" name="description" maxlength="500" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">{{ community.description or '' }}</textarea>
+                <button class="rounded-xl bg-bordeaux-800 px-4 py-2 text-xs font-bold text-white hover:bg-bordeaux-900" type="submit">Save Details</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+            <h2 class="text-lg font-bold text-slate-900 font-display mb-2">Administrator</h2>
+            <p class="text-xs text-slate-500 mb-4">Transfer your administrator role to a current member. This keeps at least one administrator in the group.</p>
+            {% if other_members %}
+            <form method="POST" action="{{ url_for('community.transfer_admin', community_id=community.id) }}" class="flex flex-col sm:flex-row gap-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="new_admin_id" required class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    <option value="">Choose a member</option>
+                    {% for member in other_members %}
+                    <option value="{{ member.id }}">{{ member.full_name }} ({{ member.role|capitalize }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="rounded-xl bg-bordeaux-800 px-4 py-2 text-xs font-bold text-white hover:bg-bordeaux-900">Transfer Admin</button>
+            </form>
+            {% else %}
+            <p class="text-sm text-slate-500">Invite another member before transferring administration.</p>
+            {% endif %}
+        </div>
+    </section>
+    {% else %}
+    <form method="POST" action="{{ url_for('community.leave', community_id=community.id) }}" class="flex justify-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">Leave Community</button>
+    </form>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Communities | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                Mukando Communities
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Browse Mukando circles. Member-only information is shown after you join.
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('community.join') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs">
+                <i data-lucide="key" class="w-4 h-4 text-slate-500"></i>
+                Join with Code
+            </a>
+            <a href="{{ url_for('community.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-bordeaux-800 hover:bg-bordeaux-900 text-white transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Create Community
+            </a>
+        </div>
+    </div>
+
+    <!-- Community Cards Grid -->
+    {% if communities %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for c in communities %}
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-bordeaux-300 hover:shadow-md transition-all flex flex-col justify-between p-6">
+            <div>
+                <!-- Badge row -->
+                <div class="flex items-center justify-between gap-2 mb-3">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold {% if c.membership_role == 'admin' %}bg-amber-100 text-amber-800 border border-amber-200{% elif c.membership_role %}bg-slate-100 text-slate-700{% else %}bg-bordeaux-50 text-bordeaux-800{% endif %}">
+                        {% if c.membership_role == 'admin' %}
+                            <i data-lucide="crown" class="w-3.5 h-3.5"></i> Community Admin
+                        {% elif c.membership_role %}
+                            <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Member
+                        {% else %}
+                            <i data-lucide="lock-keyhole" class="w-3.5 h-3.5"></i> Invite required
+                        {% endif %}
+                    </span>
+                    <span class="text-xs text-slate-400">
+                        {{ c.member_count }} member{% if c.member_count != 1 %}s{% endif %}
+                    </span>
+                </div>
+
+                <h2 class="text-lg font-bold font-display text-slate-900 hover:text-bordeaux-800">
+                    <a href="{{ url_for('community.detail', community_id=c.id) }}">
+                        {{ c.name }}
+                    </a>
+                </h2>
+                <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">
+                    {{ c.description|default('Established community circle maintaining transparent peer loan and savings agreements.', true) }}
+                </p>
+                <p class="text-[11px] text-slate-400 mt-2">Created by {{ c.creator_name }}</p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                {% if c.invite_code %}
+                <div class="flex items-center gap-1.5 text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-700">
+                    <i data-lucide="hash" class="w-3 h-3 text-slate-400"></i>
+                    <span>{{ c.invite_code }}</span>
+                </div>
+                {% else %}
+                <span class="text-[11px] text-slate-400">Established {{ c.created_at[:10]|format_date }}</span>
+                {% endif %}
+
+                <a href="{{ url_for('community.detail', community_id=c.id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-bordeaux-800 hover:text-bordeaux-950">
+                    {% if c.membership_role %}Open Group{% else %}View Group{% endif %} &rarr;
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 max-w-xl mx-auto space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-bordeaux-50 text-bordeaux-800 mx-auto flex items-center justify-center">
+            <i data-lucide="users" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-xl font-bold font-display text-slate-900">No Communities Yet</h2>
+        <p class="text-sm text-slate-500">
+            No community groups have been created yet. Create a new circle or join one using an invitation code.
+        </p>
+        <div class="flex items-center justify-center gap-3 pt-2">
+            <a href="{{ url_for('community.join') }}" class="px-4 py-2.5 rounded-xl font-semibold text-xs bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors">
+                Join with Invite Code
+            </a>
+            <a href="{{ url_for('community.create') }}" class="px-4 py-2.5 rounded-xl font-semibold text-xs bg-bordeaux-800 text-white hover:bg-bordeaux-900 transition-colors shadow-sm">
+                Create New Community
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.name }} — Trust Profile | MukoLend{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Profile Hero Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            
+            <div class="flex items-center gap-4">
+                <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md" style="background-color: {{ profile_user.avatar_color|default('#059669') }}">
+                    {{ profile_user.name[:2]|upper }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">{{ profile_user.name }}</h1>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                            <i data-lucide="badge-check" class="w-3.5 h-3.5 text-emerald-600"></i> Verified Zimbabwean Member
+                        </span>
+                    </div>
+                    <p class="text-slate-600 text-sm font-medium mt-0.5">{{ profile_user.occupation }}</p>
+                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                        <span><i data-lucide="map-pin" class="inline w-3 h-3 text-slate-400"></i> {{ profile_user.location }}</span>
+                        <span>•</span>
+                        <span><i data-lucide="phone" class="inline w-3 h-3 text-slate-400"></i> {{ profile_user.phone }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trust Score Gauge -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full border-4 {% if profile_user.trust_score >= 85 %}border-emerald-500{% elif profile_user.trust_score >= 70 %}border-amber-500{% else %}border-red-500{% endif %} flex items-center justify-center font-display font-extrabold text-2xl text-slate-900">
+                    {{ profile_user.trust_score }}
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Community Trust Rating</span>
+                    <span class="text-sm font-bold text-emerald-700 block mt-0.5">
+                        {% if profile_user.trust_score >= 90 %}
+                            Anchor Tier (90+)
+                        {% elif profile_user.trust_score >= 75 %}
+                            Reliable Member (75-89)
+                        {% else %}
+                            Developing Standing
+                        {% endif %}
+                    </span>
+                    <span class="text-[11px] text-slate-500">Based on settled loans & peer vouches</span>
+                </div>
+            </div>
+
+        </div>
+
+        {% if profile_user.bio %}
+        <div class="mt-6 pt-6 border-t border-slate-100 text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <strong class="text-slate-800">Community Statement:</strong> "{{ profile_user.bio }}"
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Track Record Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Loans Requested</span>
+            <span class="text-2xl font-extrabold text-slate-900 font-display mt-0.5 block">{{ borrowed_count }}</span>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Fulfilled & Repaid</span>
+            <span class="text-2xl font-extrabold text-emerald-700 font-display mt-0.5 block">{{ repaid_count }}</span>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Funded as Lender</span>
+            <span class="text-2xl font-extrabold text-amber-600 font-display mt-0.5 block">{{ lent_count }}</span>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Mukando Circles</span>
+            <span class="text-2xl font-extrabold text-purple-700 font-display mt-0.5 block">{{ groups|length }}</span>
+        </div>
+    </div>
+
+    <!-- Trust Badges & Endorsements -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
+        <h3 class="font-display font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+            <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+            Earned Trust Badges
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
+                    <i data-lucide="clock-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs text-slate-900">Punctual Repayer</h4>
+                    <p class="text-[11px] text-slate-500">Settles debt on or ahead of agreed maturity date.</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+                    <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs text-slate-900">Community Backer</h4>
+                    <p class="text-[11px] text-slate-500">Actively funds and vouches for fellow club members.</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-purple-50 border border-purple-100 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs text-slate-900">Transparent Record</h4>
+                    <p class="text-[11px] text-slate-500">100% of transaction references verified on EcoCash/InnBucks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mutual Community Reviews -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
+        <h3 class="font-display font-bold text-lg text-slate-900 mb-6 flex items-center gap-2">
+            <i data-lucide="message-square-quote" class="w-5 h-5 text-emerald-600"></i>
+            Peer Testimonials & Reviews ({{ reviews|length }})
+        </h3>
+
+        {% if reviews %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for r in reviews %}
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-900">{{ r.reviewer_name }}</span>
+                    <span class="text-amber-500 font-bold">
+                        {% for i in range(r.rating) %}★{% endfor %}
+                    </span>
+                </div>
+                <span class="text-[10px] text-slate-400 block">{{ r.reviewer_occupation }} • {{ r.created_at[:10] }}</span>
+                <p class="text-slate-700 italic">"{{ r.comment }}"</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-slate-400 italic">No reviews recorded yet. Reviews are generated upon successful loan settlement.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

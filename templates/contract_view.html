@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-slate-100 print:bg-white text-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promissory Note {{ loan.loan_reference }} — MukoLend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        .font-serif-title { font-family: 'Cinzel', serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .contract-container { border: 2px solid #0f172a !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="py-8 px-4 sm:px-6">
+
+    <!-- Top Action Bar -->
+    <div class="max-w-4xl mx-auto mb-6 flex items-center justify-between no-print">
+        <a href="{{ url_for('loan_detail', loan_id=loan.id) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-slate-900">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Loan Details
+        </a>
+        <div class="flex items-center gap-3">
+            <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow transition-all">
+                <i data-lucide="printer" class="w-4 h-4"></i> Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- The Formal Document Container -->
+    <div class="max-w-4xl mx-auto bg-white border border-slate-300 rounded-2xl shadow-xl p-8 sm:p-12 contract-container relative overflow-hidden">
+        
+        <!-- Watermark / Background Crest -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
+            <i data-lucide="shield-check" class="w-[500px] h-[500px] text-slate-900"></i>
+        </div>
+
+        <!-- Document Header -->
+        <div class="border-b-2 border-slate-900 pb-6 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs uppercase tracking-widest mb-1">
+                    <span>MukoLend Zimbabwe</span>
+                    <span>•</span>
+                    <span>Community Trust Accord</span>
+                </div>
+                <h1 class="font-serif-title text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
+                    COMMUNITY PROMISSORY NOTE
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Recorded under the auspices of {{ loan.group_name }}</p>
+            </div>
+            <div class="text-left sm:text-right font-mono">
+                <span class="text-xs text-slate-400 uppercase tracking-wider block">Contract Reference</span>
+                <span class="text-lg font-bold text-slate-950">{{ loan.loan_reference }}</span>
+                <span class="text-xs text-emerald-700 block mt-0.5">Status: {{ loan.status|upper }}</span>
+            </div>
+        </div>
+
+        <!-- Preamble -->
+        <div class="prose text-xs text-slate-700 leading-relaxed mb-8">
+            <p>
+                This agreement certifies that on <strong>{{ loan.requested_at[:10] }}</strong>, the undersigned parties, being members in good standing of <strong>{{ loan.group_name }}</strong> in Zimbabwe, entered into a peer-to-peer loan accord based on mutual trust, community standing, and explicit terms as registered on the MukoLend platform.
+            </p>
+        </div>
+
+        <!-- Parties Box -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-xs">
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">BORROWER (Promisor)</span>
+                <div class="text-sm font-bold text-slate-950">{{ loan.borrower_name }}</div>
+                <div class="text-slate-600 mt-1">Occupation: {{ loan.borrower_occupation }}</div>
+                <div class="text-slate-600">Location: {{ loan.borrower_location }}</div>
+                <div class="text-slate-600 font-mono">Mobile / Wallet: {{ loan.borrower_phone }}</div>
+                <div class="text-emerald-700 font-semibold mt-2">✓ Verified Community Member</div>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">LENDER (Promisee)</span>
+                <div class="text-sm font-bold text-slate-950">{{ loan.lender_name or 'Community Circle Pool' }}</div>
+                <div class="text-slate-600 mt-1">Occupation: {{ loan.lender_occupation or 'Community Lender' }}</div>
+                <div class="text-slate-600">Location: {{ loan.lender_location or 'Zimbabwe' }}</div>
+                <div class="text-slate-600 font-mono">Mobile / Wallet: {{ loan.lender_phone or '—' }}</div>
+                <div class="text-emerald-700 font-semibold mt-2">✓ Verified Community Member</div>
+            </div>
+        </div>
+
+        <!-- Financial Covenants Table -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden mb-8 text-xs">
+            <div class="bg-slate-900 text-white font-bold p-3 uppercase tracking-wider text-[11px]">
+                Agreed Financial Covenants
+            </div>
+            <table class="w-full divide-y divide-slate-200 text-slate-700">
+                <tbody class="divide-y divide-slate-100 font-mono">
+                    <tr class="bg-slate-50/50">
+                        <td class="p-3.5 font-sans font-medium text-slate-600">Principal Disbursed:</td>
+                        <td class="p-3.5 font-bold text-slate-950 text-right">${{ "%.2f"|format(loan.principal_amount) }} USD</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3.5 font-sans font-medium text-slate-600">Agreed Community Markup / Interest:</td>
+                        <td class="p-3.5 font-bold text-amber-700 text-right">+{{ loan.interest_rate_percent }}% (+${{ "%.2f"|format(loan.interest_amount) }} USD)</td>
+                    </tr>
+                    <tr class="bg-slate-50/50">
+                        <td class="p-3.5 font-sans font-medium text-slate-600">Total Settlement Due:</td>
+                        <td class="p-3.5 font-extrabold text-emerald-800 text-base text-right font-sans">${{ "%.2f"|format(loan.total_payable) }} USD</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3.5 font-sans font-medium text-slate-600">Maturity / Due Date:</td>
+                        <td class="p-3.5 text-slate-900 text-right font-sans font-bold">{{ loan.due_date or 'To be set upon disbursement' }}</td>
+                    </tr>
+                    <tr class="bg-slate-50/50">
+                        <td class="p-3.5 font-sans font-medium text-slate-600">Agreed Payment Channels:</td>
+                        <td class="p-3.5 text-slate-900 text-right font-sans">{{ loan.disbursement_method }} (EcoCash / InnBucks)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Repayment Ledger -->
+        <div class="mb-8">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Recorded Repayment History</span>
+            <table class="w-full text-xs text-left border border-slate-200 rounded-lg overflow-hidden">
+                <thead class="bg-slate-100 text-[10px] uppercase font-bold text-slate-600">
+                    <tr>
+                        <th class="p-2.5">Date & Time</th>
+                        <th class="p-2.5">Method</th>
+                        <th class="p-2.5">Reference ID</th>
+                        <th class="p-2.5 text-right">Amount Credited</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for r in repayments %}
+                    <tr>
+                        <td class="p-2.5 font-mono">{{ r.paid_at[:16] }}</td>
+                        <td class="p-2.5">{{ r.payment_method }}</td>
+                        <td class="p-2.5 font-mono text-slate-600">{{ r.transaction_reference }}</td>
+                        <td class="p-2.5 text-right font-mono font-bold text-emerald-700">${{ "%.2f"|format(r.amount) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="p-4 text-center text-slate-400 italic">No repayments logged yet.</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="bg-slate-50 font-bold">
+                        <td colspan="3" class="p-2.5 text-right font-sans uppercase">Total Paid to Date:</td>
+                        <td class="p-2.5 text-right font-mono text-slate-950 font-bold">${{ "%.2f"|format(total_paid) }}</td>
+                    </tr>
+                    <tr class="bg-slate-100 font-bold">
+                        <td colspan="3" class="p-2.5 text-right font-sans uppercase">Remaining Balance Outstanding:</td>
+                        <td class="p-2.5 text-right font-mono text-emerald-800 font-bold">${{ "%.2f"|format(remaining) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cryptographic Seal & Signatures -->
+        <div class="border-t-2 border-slate-900 pt-6 mt-8">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center text-xs">
+                
+                <div class="sm:col-span-8 space-y-2">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Cryptographic Integrity Hash (SHA-256)</span>
+                    <div class="p-2.5 bg-slate-100 rounded border border-slate-200 font-mono text-[10px] break-all text-slate-800 select-all">
+                        {{ loan.contract_hash or 'PENDING_FINALIZATION' }}
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-tight">
+                        This digital note constitutes an immutable transaction record maintained by MukoLend for {{ loan.group_name }}. Verified against platform ledger.
+                    </p>
+                </div>
+
+                <!-- Digital Stamp -->
+                <div class="sm:col-span-4 flex justify-center sm:justify-end">
+                    <div class="w-32 h-32 rounded-full border-4 border-emerald-700 p-2 text-center flex flex-col items-center justify-center text-emerald-800 transform -rotate-12 select-none">
+                        <div class="text-[9px] font-bold uppercase tracking-widest">MukoLend Zimbabwe</div>
+                        <div class="text-xs font-black tracking-tighter my-0.5">VERIFIED RECORD</div>
+                        <div class="text-[8px] font-mono">{{ loan.loan_reference }}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5">COMMUNITY SEAL</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

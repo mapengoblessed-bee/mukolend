@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Record Repayment | Loan #ML-{{ "%04d"|format(loan.id) }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-lg p-6 sm:p-10 space-y-6">
+        
+        <div>
+            <a href="{{ url_for('loan.detail', loan_id=loan.id) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 mb-4">
+                &larr; Back to Loan #ML-{{ "%04d"|format(loan.id) }}
+            </a>
+            <h1 class="text-2xl font-extrabold text-slate-900 font-display">
+                Record Simulated Repayment
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">
+                Enter simulated mobile or cash repayment to reduce outstanding balance for Loan #ML-{{ "%04d"|format(loan.id) }}
+            </p>
+        </div>
+
+        <!-- Summary Header Strip -->
+        <div class="p-4 rounded-2xl bg-bordeaux-50/50 border border-bordeaux-200 flex items-center justify-between">
+            <div>
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Outstanding Balance</span>
+                <span class="text-2xl font-extrabold font-display text-bordeaux-900 block mt-0.5">
+                    {{ outstanding_balance_minor|currency }}
+                </span>
+                <span class="text-[11px] text-slate-500">Lender: {{ loan.lender_name }} ({{ loan.community_name }})</span>
+            </div>
+
+            <button type="button" onclick="setFullAmount('{{ "%.2f"|format(outstanding_balance_minor / 100) }}')"
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-bordeaux-800 hover:bg-bordeaux-900 text-white shadow-xs transition-colors">
+                Pay Full Balance
+            </button>
+        </div>
+
+        <!-- Repayment Form -->
+        <form action="{{ url_for('repayment.create', loan_id=loan.id) }}" method="POST" class="space-y-5" data-disable-on-submit>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Amount Input -->
+            <div>
+                <label for="amount" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Repayment Amount (USD) *
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">$</div>
+                    <input id="amount" name="amount" type="number" step="0.01" min="0.01" max="{{ "%.2f"|format(outstanding_balance_minor / 100) }}" value="{{ amount }}" required
+                           placeholder="e.g. {{ "%.2f"|format(outstanding_balance_minor / 100) }}"
+                           class="block w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-base font-bold focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Cannot exceed remaining balance of {{ outstanding_balance_minor|currency }}. Supports partial repayments.</p>
+            </div>
+
+            <!-- Simulated Reference -->
+            <div>
+                <label for="simulated_reference" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Simulated Reference Code *
+                </label>
+                <div class="relative">
+                    <input id="simulated_reference" name="simulated_reference" type="text" required
+                           value="{{ default_ref }}"
+                           class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 font-mono text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Simulated transaction voucher or EcoCash/InnBucks style transaction identifier.</p>
+            </div>
+
+            <!-- Repayment Date -->
+            <div>
+                <label for="repayment_date" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Date of Repayment *
+                </label>
+                <input id="repayment_date" name="repayment_date" type="date" value="{{ payment_date }}" required
+                       class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-3">
+                <a href="{{ url_for('loan.detail', loan_id=loan.id) }}" class="px-4 py-2.5 rounded-xl font-semibold text-xs text-slate-600 hover:bg-slate-100 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-all shadow-md flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Post Simulated Repayment
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // Set default date to today
+    const dateInput = document.getElementById('repayment_date');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
+    function setFullAmount(val) {
+        document.getElementById('amount').value = val;
+    }
+</script>
+{% endblock %}

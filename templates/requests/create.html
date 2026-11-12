@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Request a Loan | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-lg p-6 sm:p-10 space-y-6">
+        
+        <div>
+            <a href="{{ url_for('loan_request.index') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 mb-4">
+                &larr; Back to Requests
+            </a>
+            <h1 class="text-2xl font-extrabold text-slate-900 font-display">
+                Request a Community Peer Loan
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">
+                Submit a short-term borrowing request to your Mukando circle. Fellow members will review and can fund your request.
+            </p>
+        </div>
+
+        <form action="{{ url_for('loan_request.create') }}" method="POST" class="space-y-5" data-disable-on-submit>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Community Selector -->
+            <div>
+                <label for="community_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Select Community *
+                </label>
+                <select id="community_id" name="community_id" required
+                        class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                    {% for c in communities %}
+                        <option value="{{ c.id }}" {% if form_data.get('community_id', request.args.get('community_id', type=int)|string) == c.id|string %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Amount & Currency -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2">
+                    <label for="amount" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Amount Requested *
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
+                            $
+                        </div>
+                        <input id="amount" name="amount" type="number" step="0.01" min="0.01" max="10000" required
+                               placeholder="50.00" value="{{ form_data.get('amount', '') }}"
+                               class="block w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all font-semibold">
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Stored precisely in cents minor units. Max 2 decimals.</p>
+                </div>
+
+                <div>
+                    <label for="currency" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Currency
+                    </label>
+                    <input id="currency" name="currency" type="text" value="{{ form_data.get('currency', 'USD') }}" readonly
+                           class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-bold text-sm cursor-not-allowed">
+                </div>
+            </div>
+
+            <!-- Proposed Due Date -->
+            <div>
+                <label for="proposed_due_date" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Proposed Repayment Due Date *
+                </label>
+                <input id="proposed_due_date" name="proposed_due_date" type="date" value="{{ form_data.get('proposed_due_date', '') }}" required
+                       class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">
+                <p class="text-[11px] text-slate-400 mt-1">Must be a future date within realistic community terms (typically 7 to 60 days).</p>
+            </div>
+
+            <!-- Purpose / Reason -->
+            <div>
+                <label for="reason" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Reason for Borrowing *
+                </label>
+                <textarea id="reason" name="reason" rows="3" required maxlength="500"
+                          placeholder="Explain what the loan will be used for (e.g., Stock purchase for retail kiosk, school fees, medical emergency). Transparent reasons build member trust."
+                          class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-bordeaux-800 focus:border-transparent transition-all">{{ form_data.get('reason', '') }}</textarea>
+            </div>
+
+            <!-- Transparency Disclaimer -->
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-4 h-4 text-bordeaux-800"></i>
+                    Dual Agreement Requirement:
+                </div>
+                <p class="leading-relaxed">
+                    Once a community peer accepts your request, the loan enters <strong class="text-slate-800">awaiting agreement</strong> status. Both you and the lender must formally review and acknowledge the terms before the loan becomes active.
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <a href="{{ url_for('loan_request.index') }}" class="px-4 py-2.5 rounded-xl font-semibold text-xs text-slate-600 hover:bg-slate-100 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-bordeaux-800 hover:bg-bordeaux-900 transition-all shadow-md flex items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Post Loan Request
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // Set minimum date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateInput = document.getElementById('proposed_due_date');
+    if (dateInput) {
+        dateInput.min = tomorrow.toISOString().split('T')[0];
+    }
+</script>
+{% endblock %}

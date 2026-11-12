@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 70" width="340" height="70">
+  <defs>
+    <linearGradient id="bordeauxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6B2C3B"/>
+      <stop offset="100%" stop-color="#50222D"/>
+    </linearGradient>
+    <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8E7EF"/>
+      <stop offset="100%" stop-color="#C4C3D0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Community Trust Interlocking Circles Icon -->
+  <g transform="translate(10, 5)">
+    <!-- Base Shield -->
+    <rect x="0" y="0" width="60" height="60" rx="16" fill="url(#bordeauxGrad)" />
+    
+    <!-- Community Interlocking Nodes (Trust Network) -->
+    <circle cx="30" cy="22" r="7" fill="url(#silverGrad)" />
+    <circle cx="20" cy="38" r="6" fill="#FFFFFF" />
+    <circle cx="40" cy="38" r="6" fill="#FFFFFF" />
+
+    <!-- Connecting Arcs / Bridge of Trust -->
+    <path d="M22 36 L28 26 L32 26 L38 36" stroke="url(#silverGrad)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+    <path d="M22 38 L38 38" stroke="url(#silverGrad)" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Typography: MukoLend -->
+  <text x="82" y="42" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="32" font-weight="800" fill="#50222D" letter-spacing="-0.5">
+    Muko<tspan fill="#6B2C3B">Lend</tspan>
+  </text>
+
+  <!-- Subtitle Tagline -->
+  <text x="83" y="58" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="600" fill="#8A8898" letter-spacing="0.5">
+    TRUST &amp; MUKANDO LENDING
+  </text>
+</svg>

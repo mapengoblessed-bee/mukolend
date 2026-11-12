@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Mukando Savings Clubs | MukoLend Zimbabwe{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                    <i data-lucide="users" class="w-3.5 h-3.5"></i> Community Circles
+                </span>
+            </div>
+            <h1 class="text-3xl font-extrabold font-display text-slate-900 mt-1">Mukando Savings Groups & Clubs</h1>
+            <p class="text-sm text-slate-500">Join trusted community groups or establish your own savings and peer credit circle.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('create_group') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition-all">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Establish A Mukando Club</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Groups Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for g in groups %}
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+                <!-- Top Badge & Location -->
+                <div class="flex items-center justify-between text-xs mb-3">
+                    <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 font-bold uppercase tracking-wider text-[11px] border border-emerald-100">
+                        {{ g.category }}
+                    </span>
+                    <span class="text-slate-500 flex items-center gap-1 font-medium">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                        {{ g.location }}
+                    </span>
+                </div>
+
+                <h3 class="font-display text-xl font-bold text-slate-900 mb-2">
+                    <a href="{{ url_for('group_detail', group_id=g.id) }}" class="hover:text-emerald-700 transition-colors">
+                        {{ g.name }}
+                    </a>
+                </h3>
+
+                <p class="text-xs text-slate-600 leading-relaxed mb-6 line-clamp-3">
+                    {{ g.description }}
+                </p>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-3 gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100 text-center mb-6">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Members</span>
+                        <span class="text-base font-extrabold text-slate-900 font-display mt-0.5 block">{{ g.member_count }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Active Loans</span>
+                        <span class="text-base font-extrabold text-emerald-700 font-display mt-0.5 block">{{ g.active_loans_count }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Group Pool</span>
+                        <span class="text-base font-extrabold text-amber-600 font-display mt-0.5 block">${{ "%.0f"|format(g.group_pool_balance) }}</span>
+                    </div>
+                </div>
+
+                <!-- Rules Snippet -->
+                <div class="text-xs text-slate-500 mb-4 flex items-start gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <span class="line-clamp-2"><strong>Rules:</strong> {{ g.rules }}</span>
+                </div>
+            </div>
+
+            <!-- Footer Action & Founder -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Led by <strong class="text-slate-700">{{ g.founder_name }}</strong></span>
+
+                <div class="flex items-center gap-2">
+                    {% if g.id in user_joined_group_ids %}
+                        <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i> Member
+                        </span>
+                        <a href="{{ url_for('group_detail', group_id=g.id) }}" class="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors">
+                            Enter Club &rarr;
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('group_detail', group_id=g.id) }}" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">
+                            View & Join &rarr;
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
